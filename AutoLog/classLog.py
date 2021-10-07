@@ -10,7 +10,7 @@ class Log:
     def testLog(self):
         # Verification de log
         with open(self.filename,'r') as log:
-            return re.match(self.struct['regex'], log.readline())
+            return re.match(self.struct['regex'], ''.join(log.readlines()[:10]))
 
 
     def parseLog(self):
