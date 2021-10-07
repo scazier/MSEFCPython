@@ -7,18 +7,17 @@ class Log:
         self.headers = self.struct["header"]
         self.content = []
 
-    def testLog(self,test):
-        # Verification de log FTP
-        return True if re.match(self.struct["test"],'\n'.join(open(self.filename,'r').readlines()[:10])) != None else False
+    def testLog(self):
+        # Verification de log
+        return False if re.search(self.struct["test"],'\n'.join(open(self.filename,'r').readlines()[:10])) is None else True
 
 
-
-    def parseLog(self, regex):
+    def parseLog(self):
         with open(self.filename,'r') as log:
             for line in log:
                 match = re.search(self.struct["regex"], line)
                 if match:
-                    self.content.append(match.groups())
+                    self.content.append(list(match.groups()))
 
     def getHeader(self):
         return self.headers

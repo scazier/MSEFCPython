@@ -9,8 +9,8 @@ struct = {
 class ftpLog(Log):
     def __init__(self, filename):
         Log.__init__(self,filename, struct)
-        if self.testLog(struct["test"]):
-            self.parseLog(struct["regex"])
+        if self.testLog():
+            self.parseLog()
         else:
             pass
 
