@@ -4,7 +4,7 @@ class Log:
     def __init__(self, filename, struct):
         self.filename = filename
         self.struct = struct
-        self.headers = self.struct["header"]
+        self.header = self.struct["header"]
         self.content = []
 
     def testLog(self):
@@ -21,7 +21,7 @@ class Log:
                     self.content.append(list(match.groups()))
 
     def getHeader(self):
-        return self.headers
+        return self.header
 
     def getContent(self):
         return self.content
