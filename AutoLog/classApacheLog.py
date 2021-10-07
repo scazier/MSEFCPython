@@ -18,4 +18,4 @@ class apacheLog(Log):
             pass
 
 
-print(apacheLog("AutoLog/logFiles/apache.log").testLog())
+# print(apacheLog("AutoLog/logFiles/apache.log").testLog())
