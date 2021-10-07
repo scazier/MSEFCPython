@@ -9,7 +9,8 @@ class Log:
 
     def testLog(self):
         # Verification de log
-        return False if re.search(self.struct["test"],'\n'.join(open(self.filename,'r').readlines()[:10])) is None else True
+        with open(self.filename,'r') as log:
+            return re.match(self.struct['regex'], log.readline())
 
 
     def parseLog(self):
