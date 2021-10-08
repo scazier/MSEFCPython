@@ -18,7 +18,4 @@ class kernLog(Log):
 
 
 
-
-print(kernLog("AutoLog\logFiles\kern.log").getContent())
-
 #([A-Za-z]{3}) ([ 0-9][0-9]) ([0-9]{2}:[0-9]{2}:[0-9]{2}) ([^:]*:) ?(\[[^ ]*\]) ?(.[^ ]*) ?(.*)
