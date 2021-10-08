@@ -1,9 +1,9 @@
 #!/usr/bin/env python
 
-from pyqt5 import *
-from pyqt5 import QtWidgets
-from pyqt5.QtCore import QDateTime, Qt, QTimer
-from pyqt5.QtWidgets import *
+from PyQt5 import *
+from PyQt5 import QtWidgets
+from PyQt5.QtCore import QDateTime, Qt, QTimer
+from PyQt5.QtWidgets import *
 
 import sys
 
