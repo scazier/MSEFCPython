@@ -25,4 +25,4 @@ class ftpLog(Log):
 
 
 
-print(ftpLog("/home/m0xy/Documents/MSEFC/Regex/Exercice_regex/test.txt").getContent())
+#print(ftpLog("/home/m0xy/Documents/MSEFC/Regex/Exercice_regex/test.txt").getContent())

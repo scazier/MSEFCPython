@@ -19,6 +19,6 @@ class sysLog(Log):
 
 
 
-print(sysLog("/var/log/syslog.1").getContent())
+#print(sysLog("/var/log/syslog.1").getContent())
 
 #([A-Z][a-z]{2})\s+([0-9]{1,2})\s([0-9]{2}:[0-9]{2}:[0-9]{2})\s([A-Za-z]+|\(not\slogged\sin+\))\s(.+\[[0-9]+\]):\s(.+)
