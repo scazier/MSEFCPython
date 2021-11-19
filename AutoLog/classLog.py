@@ -1,5 +1,6 @@
 import re
 
+
 class Log:
     def __init__(self, filename):
         self.filename = filename
@@ -15,7 +16,7 @@ class Log:
     """
     def testLog(self):
         found = 0
-        with open('struct.conf','r') as struct:
+        with open('AutoLog/struct.conf','r') as struct:
             for conf in struct:
                 conf = conf.split(';')
                 with open(self.filename,'r') as log:
@@ -47,7 +48,7 @@ class Log:
     def filter(self, pattern, field):
         filtered = []
         for line in self.content:
-            if re.match(pattern, line[field])
+            if re.match(pattern, line[field]):
                 filtered.append(line)
                 # Add in Qt5 dataframe
 

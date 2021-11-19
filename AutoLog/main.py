@@ -1,5 +1,6 @@
 from classLog import Log
 
+
 class logAnalysis:
     def __init__(self, filename):
         self.logType(filename)
@@ -27,7 +28,7 @@ class logAnalysis:
 
 def main():
     print("Start log analysis...")
-    print(logAnalysis("./logFiles/kern.log").parseLog())
+    print(logAnalysis("AutoLog/logFiles/kern.log").parseLog())
 
 
 if __name__=='__main__':
