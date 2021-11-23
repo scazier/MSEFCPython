@@ -1,5 +1,6 @@
 import re
-from classLog import Log
+
+from Log import Log
 
 struct = {
     "test"  : "FileZilla",
@@ -7,7 +8,7 @@ struct = {
     "regex" : '^(\([0-9]{1,100}\))\s([0-9]{2}/[0-9]{2}/[0-9]{4})\s([0-9]{2}:[0-9]{2}:[0-9]{2})\s-\s([A-Za-z]+|\(not\slogged\sin+\))\s\(([0-9]{1,3}[\.][0-9]{1,3}[\.][0-9]{1,3}[\.][0-9]{1,3})\)>(.+)'
 }
 
-class ftpLog(Log):
+class FtpLog(Log):
     def __init__(self, filename):
         Log.__init__(self,filename, struct)
         if self.testLog():

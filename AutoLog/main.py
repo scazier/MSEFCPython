@@ -1,4 +1,4 @@
-from classLog import Log
+from Log import Log
 
 
 class logAnalysis:

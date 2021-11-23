@@ -1,4 +1,4 @@
-from classLog import Log
+from Log import Log
 
 struct = {
     "test"  : "syslog",
@@ -6,7 +6,7 @@ struct = {
     "regex" : '([A-Z][a-z]{2})\s+([0-9]{1,2})\s([0-9]{2}:[0-9]{2}:[0-9]{2})\s(.+|\(not\slogged\sin+\))\s(.+\[[0-9]+\]):\s(.+)'
 }
 
-class sysLog(Log):
+class SysLog(Log):
     def __init__(self, filename):
         Log.__init__(self,filename, struct)
         if self.testLog():

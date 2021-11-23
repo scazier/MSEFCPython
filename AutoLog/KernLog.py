@@ -1,4 +1,4 @@
-from classLog import Log
+from Log import Log
 
 struct = {
     "test"  : "kern",
@@ -6,7 +6,7 @@ struct = {
     "regex" : '([A-Za-z]{3}) ([ 0-9][0-9]) ([0-9]{2}:[0-9]{2}:[0-9]{2}) ([^:]*:) ?(\[[^ ]*\]) ?(.[^ ]*) ?(.*)'
 }
 
-class kernLog(Log):
+class KernLog(Log):
     def __init__(self, filename):
         Log.__init__(self,filename, struct)
         if self.testLog():

@@ -1,5 +1,4 @@
-from classLog import Log
-
+from Log import Log
 
 struct = {
     "test": "Apache",
@@ -9,7 +8,7 @@ struct = {
 }
 
 
-class apacheLog(Log):
+class ApacheLog(Log):
     def __init__(self, filename):
         Log.__init__(self, filename, struct)
         if self.testLog():

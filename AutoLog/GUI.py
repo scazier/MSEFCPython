@@ -1,18 +1,24 @@
 #!/usr/bin/env python
 
+import sys
+
 from PyQt5 import *
 from PyQt5 import QtWidgets
 from PyQt5.QtCore import QDateTime, Qt, QTimer
 from PyQt5.QtWidgets import *
 
-import sys
 
-class WidgetGallery(QDialog):
+class MainWindow(QMainWindow):
     def __init__(self, parent=None):
-        super(WidgetGallery, self).__init__(parent)
-        self.resize(1200,800)
-        self.setWindowTitle("AutoLog")
+
+        super(MainWindow, self).__init__(parent)
+        self.initUI(self)
+
+    def initUI(self):
         
+        self.resize(1200, 800)
+        self.setWindowTitle("AutoLog")
+
         combobox = QComboBox(self)
         combobox.addItem('Syslog')
         combobox.addItem('Apache')
@@ -34,38 +40,27 @@ class WidgetGallery(QDialog):
 
         self.setLayout(mainLayout)
 
-        
     def createBottomLeftTabWidget(self):
         self.bottomLeftTabWidget = QTabWidget()
         self.bottomLeftTabWidget.setSizePolicy(QSizePolicy.Preferred,
-                QSizePolicy.Ignored)
+                                               QSizePolicy.Ignored)
 
-        tab1 = QWidget()
-        tableWidget = QTableWidget(10,10)
+        tableLog = QWidget()
+        tableWidget = QTableWidget(10, 10)
 
         tab1hbox = QHBoxLayout()
         tab1hbox.setContentsMargins(5, 5, 5, 5)
         tab1hbox.addWidget(tableWidget)
-        tab1.setLayout(tab1hbox)
+        tableLog.setLayout(tab1hbox)
 
-        
-        self.bottomLeftTabWidget.addTab(tab1, "&Table")
-
+        self.bottomLeftTabWidget.addTab(tableLog, "&Table")
 
 
 if __name__ == '__main__':
-    app= QtWidgets.QApplication(sys.argv)
+    app = QtWidgets.QApplication(sys.argv)
     app.setStyle('Fusion')
 
-    data = [
-          [4, 9, 2, 0],
-          [1, 0, 0, 0],
-          [3, 5, 0, 0],
-          [3, 3, 2, 0],
-          [7, 8, 9, 0]
-        ]
-    
-    gallery = WidgetGallery()
-    gallery.show()
+    window = MainWindow()
+    window.show()
 
     app.exec_()
