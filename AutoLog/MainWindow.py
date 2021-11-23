@@ -1,12 +1,14 @@
 import sys
+from datetime import time
 from pathlib import Path
 
 import pandas as pd
 from PyQt5.QtGui import QIcon
 from PyQt5.QtWidgets import (QAction, QApplication, QFileDialog, QMainWindow,
-                             QTextEdit)
+                             QTableView, QTableWidget, QTextEdit)
 
 from main import logAnalysis
+from PandasModel import pandasModel
 
 
 class MainWindow(QMainWindow):
@@ -17,8 +19,10 @@ class MainWindow(QMainWindow):
         self.initUI()
 
     def initUI(self):
-        self.textEdit = QTextEdit()
-        self.setCentralWidget(self.textEdit)
+        # self.textEdit = QTextEdit()
+        # self.setCentralWidget(self.textEdit)
+        self.table = QTableView()
+        self.setCentralWidget(self.table)
         self.statusBar()
 
         openFile = QAction(QIcon('open.png'), 'Open', self)
@@ -42,12 +46,19 @@ class MainWindow(QMainWindow):
         
         df = pd.DataFrame(logAnalysis(fname[0]).parseLog())
         print(df)
-        self.textEdit.setText(df.to_string())
+        # self.textEdit.setText(df.to_string())
+        model = pandasModel(df)
+        view = QTableView()
+        self.table.setModel(model)
+        self.table.resize(800, 600)
+        self.table.show()
+        
         
 
 def main():
     app = QApplication(sys.argv)
     mw = MainWindow()
+    
     sys.exit(app.exec_())
 
 
