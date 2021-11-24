@@ -34,7 +34,7 @@ class pandasModel(QAbstractTableModel):
         colname = self._data.columns.tolist()[col]
         self.layoutAboutToBeChanged.emit()
         # self._data.sort_values(colname, ascending=QtCore.Qt.AscendingOrder, inplace=True)
-        self._data.sort_values(colname, ascending=QtCore.Qt.AscendingOrder, inplace=True)
+        self._data.sort_values(colname, ascending=order==QtCore.Qt.AscendingOrder, inplace=True)
         self._data.reset_index(inplace=True, drop=True)
         self.layoutChanged.emit()
     
