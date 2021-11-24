@@ -1,7 +1,9 @@
 import sys
+from operator import attrgetter
+
 import pandas as pd
-from PyQt5.QtWidgets import QApplication, QTableView
 from PyQt5.QtCore import QAbstractTableModel, Qt
+from PyQt5.QtWidgets import QApplication, QTableView
 
 
 class pandasModel(QAbstractTableModel):
@@ -26,3 +28,12 @@ class pandasModel(QAbstractTableModel):
         if orientation == Qt.Horizontal and role == Qt.DisplayRole:
             return self._data.columns[col]
         return None
+
+    def sort(self, col, order):
+        self.layoutAboutToBeChanged.emit()
+        # self.data.sort_values()
+        self._data.sort_values(by= attrgetter(str(col)))
+        self.layoutChanged.emit()
+    
+    def setHorizontalHeaderLabels():
+        print('toto')

@@ -25,6 +25,9 @@ class logAnalysis:
 
     def parseLog(self):
         return self.file.parseLog()
+    
+    def getHeader(self):
+        return self.file.getHeader()
 
 def main():
     print("Start log analysis...")

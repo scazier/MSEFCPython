@@ -42,23 +42,27 @@ class MainWindow(QMainWindow):
 
         home_dir = str(Path.home())
         fname = QFileDialog.getOpenFileName(self, 'Open file', '/var/log')
-
         
+        #Create a Pandas DF bases on logAnalisys output
         df = pd.DataFrame(logAnalysis(fname[0]).parseLog())
-        print(df)
-        # self.textEdit.setText(df.to_string())
+        
+        #Set the columns Names
+        df.set_axis(logAnalysis(fname[0]).getHeader(),  axis=1, inplace=True)
+
+        # Create a specific model for the table (MVC)
         model = pandasModel(df)
-        view = QTableView()
+        
+        # Apply the model to the QTableView        
         self.table.setModel(model)
-        self.table.resize(800, 600)
+        
+        # self.table.setSortingEnabled(True)
         self.table.show()
-        
-        
+
 
 def main():
     app = QApplication(sys.argv)
     mw = MainWindow()
-    
+
     sys.exit(app.exec_())
 
 
