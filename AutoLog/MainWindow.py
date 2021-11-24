@@ -3,9 +3,11 @@ from datetime import time
 from pathlib import Path
 
 import pandas as pd
+from PyQt5 import QtWidgets
 from PyQt5.QtGui import QIcon
-from PyQt5.QtWidgets import (QAction, QApplication, QFileDialog, QMainWindow,
-                             QTableView, QTableWidget, QTextEdit)
+from PyQt5.QtWidgets import (QAction, QApplication, QComboBox, QFileDialog,
+                             QGridLayout, QLabel, QLineEdit, QMainWindow,
+                             QTableView, QTableWidget, QTextEdit, QWidget)
 
 from main import logAnalysis
 from numpyArrayModel import NumpyArrayModel
@@ -37,28 +39,46 @@ class MainWindow(QMainWindow):
 
         self.setGeometry(300, 300, 550, 450)
         self.setWindowTitle('File dialog')
+        self.centralwidget = QWidget(self)
+        self.lineEdit = QLineEdit(self.centralwidget)
+        self.comboBox = QComboBox(self.centralwidget)
+        self.label = QLabel(self.centralwidget)
+
+        self.gridLayout = QGridLayout(self.centralwidget)
+        self.gridLayout.addWidget(self.lineEdit, 0, 1, 1, 1)
+        self.gridLayout.addWidget(self.table, 1, 0, 1, 3)
+        self.gridLayout.addWidget(self.comboBox, 0, 2, 1, 1)
+        self.gridLayout.addWidget(self.label, 0, 0, 1, 1)
+        self.setCentralWidget(self.centralwidget)
+        self.label.setText("Regex Filter")
         self.show()
 
     def showDialog(self):
 
         home_dir = str(Path.home())
         fname = QFileDialog.getOpenFileName(self, 'Open file', '/var/log')
-        
-        #Create a Pandas DF bases on logAnalisys output
+
+        # Create a Pandas DF bases on logAnalisys output
         df = pd.DataFrame(logAnalysis(fname[0]).parseLog())
-        
-        #Set the columns Names
+
+        # Set the columns Names
         df.set_axis(logAnalysis(fname[0]).getHeader(),  axis=1, inplace=True)
 
         # Create a specific model for the table (MVC)
         model = pandasModel(df)
         # model = NumpyArrayModel(df,logAnalysis(fname[0]).getHeader())
-        
-        # Apply the model to the QTableView        
+
+        # Apply the model to the QTableView
         self.table.setModel(model)
-        
+
         self.table.setSortingEnabled(True)
-        self.table.show()
+        self.table.setAlternatingRowColors(True)
+        self.table.setSizeAdjustPolicy(
+            QtWidgets.QAbstractScrollArea.AdjustToContents)
+        self.table.setSizeAdjustPolicy(
+            QtWidgets.QAbstractScrollArea.AdjustToContentsOnFirstShow)
+        self.table.horizontalHeader().setStretchLastSection(True)
+        
 
 
 def main():
