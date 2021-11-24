@@ -3,12 +3,14 @@ from datetime import time
 from pathlib import Path
 
 import pandas as pd
-from PyQt5 import QtWidgets
-from PyQt5.QtCore import QSortFilterProxyModel
+from PyQt5 import QtCore, QtWidgets
+from PyQt5.QtCore import (QPoint, QRegExp, QSignalMapper,
+                          QSortFilterProxyModel, Qt)
 from PyQt5.QtGui import QIcon
 from PyQt5.QtWidgets import (QAction, QApplication, QComboBox, QFileDialog,
                              QGridLayout, QLabel, QLineEdit, QMainWindow,
-                             QTableView, QTableWidget, QTextEdit, QWidget)
+                             QMenu, QTableView, QTableWidget, QTextEdit,
+                             QWidget)
 
 from main import logAnalysis
 from numpyArrayModel import NumpyArrayModel
@@ -53,9 +55,12 @@ class MainWindow(QMainWindow):
         self.setCentralWidget(self.centralwidget)
         self.label.setText("Regex Filter")
 
-
-       
-
+        self.horizontalHeader = self.table.horizontalHeader()
+        # self.horizontalHeader.sectionClicked.connect(
+        #     self.on_view_horizontalHeader_sectionClicked)
+        self.lineEdit.textChanged.connect(self.on_lineEdit_textChanged)
+        self.comboBox.currentIndexChanged.connect(
+            self.on_comboBox_currentIndexChanged)
 
         self.show()
 
@@ -73,7 +78,7 @@ class MainWindow(QMainWindow):
         # Create a specific model for the table (MVC)
         model = pandasModel(df)
         # model = NumpyArrayModel(df,logAnalysis(fname[0]).getHeader())
-
+        self._model = model
         # Apply the model to the QTableView
         self.table.setModel(model)
 
@@ -85,12 +90,53 @@ class MainWindow(QMainWindow):
             QtWidgets.QAbstractScrollArea.AdjustToContentsOnFirstShow)
         self.table.horizontalHeader().setStretchLastSection(True)
 
-
         self.proxy = QSortFilterProxyModel(self)
         self.proxy.setSourceModel(model)
         self.table.setModel(self.proxy)
-        self.comboBox.addItems([logAnalysis(fname[0]).getHeader()[x] for x in range(model.columnCount())])
-        
+        self.comboBox.addItems([logAnalysis(fname[0]).getHeader()[x]
+                               for x in range(model.columnCount())])
+
+    # def on_view_horizontalHeader_sectionClicked(self, logicalIndex):
+    #     self.logicalIndex = logicalIndex
+    #     self.menuValues = QMenu(self)
+    #     self.signalMapper = QSignalMapper(self)
+
+    #     self.comboBox.blockSignals(True)
+    #     self.comboBox.setCurrentIndex(self.logicalIndex)
+    #     self.comboBox.blockSignals(True)
+
+    #     valuesUnique = [self._model.item(row, self.logicalIndex).text()
+    #                     for row in range(self._model.rowCount())
+    #                     ]
+
+    #     actionAll = QAction("All", self)
+    #     actionAll.triggered.connect(self.on_actionAll_triggered)
+    #     self.menuValues.addAction(actionAll)
+    #     self.menuValues.addSeparator()
+
+    #     for actionNumber, actionName in enumerate(sorted(list(set(valuesUnique)))):
+    #         action = QAction(actionName, self)
+    #         self.signalMapper.setMapping(action, actionNumber)
+    #         action.triggered.connect(self.signalMapper.map)
+    #         self.menuValues.addAction(action)
+
+    #     self.signalMapper.mapped.connect(self.on_signalMapper_mapped)
+
+    #     headerPos = self.view.mapToGlobal(self.horizontalHeader.pos())
+
+    #     posY = headerPos.y() + self.horizontalHeader.height()
+    #     posX = headerPos.x() + self.horizontalHeader.sectionPosition(self.logicalIndex)
+
+    #     self.menuValues.exec_(QPoint(posX, posY))
+    def on_lineEdit_textChanged(self, text):
+        search = QRegExp(text,
+                         Qt.CaseInsensitive,
+                         QtCore.QRegExp.RegExp
+                         )
+        self.proxy.setFilterRegExp(search)
+
+    def on_comboBox_currentIndexChanged(self, index):
+        self.proxy.setFilterKeyColumn(index)
 
 
 def main():

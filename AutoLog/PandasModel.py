@@ -44,7 +44,10 @@ class pandasModel(QAbstractTableModel):
         self._data.reset_index(inplace=True, drop=True)
         self.layoutChanged.emit()
 
-    def setHorizontalHeaderLabels():
-        print('toto')
+
+
+    # def item(self, row, col):
+    #     return(self._data[row][col])
+ 
 
     
