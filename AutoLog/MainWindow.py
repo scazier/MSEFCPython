@@ -93,6 +93,7 @@ class MainWindow(QMainWindow):
         self.proxy = QSortFilterProxyModel(self)
         self.proxy.setSourceModel(model)
         self.table.setModel(self.proxy)
+        self.comboBox.clear()
         self.comboBox.addItems([logAnalysis(fname[0]).getHeader()[x]
                                for x in range(model.columnCount())])
 
