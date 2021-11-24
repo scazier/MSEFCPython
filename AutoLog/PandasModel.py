@@ -46,3 +46,5 @@ class pandasModel(QAbstractTableModel):
 
     def setHorizontalHeaderLabels():
         print('toto')
+
+    

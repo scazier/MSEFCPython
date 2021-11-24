@@ -4,6 +4,7 @@ from pathlib import Path
 
 import pandas as pd
 from PyQt5 import QtWidgets
+from PyQt5.QtCore import QSortFilterProxyModel
 from PyQt5.QtGui import QIcon
 from PyQt5.QtWidgets import (QAction, QApplication, QComboBox, QFileDialog,
                              QGridLayout, QLabel, QLineEdit, QMainWindow,
@@ -51,6 +52,11 @@ class MainWindow(QMainWindow):
         self.gridLayout.addWidget(self.label, 0, 0, 1, 1)
         self.setCentralWidget(self.centralwidget)
         self.label.setText("Regex Filter")
+
+
+       
+
+
         self.show()
 
     def showDialog(self):
@@ -78,6 +84,12 @@ class MainWindow(QMainWindow):
         self.table.setSizeAdjustPolicy(
             QtWidgets.QAbstractScrollArea.AdjustToContentsOnFirstShow)
         self.table.horizontalHeader().setStretchLastSection(True)
+
+
+        self.proxy = QSortFilterProxyModel(self)
+        self.proxy.setSourceModel(model)
+        self.table.setModel(self.proxy)
+        self.comboBox.addItems([logAnalysis(fname[0]).getHeader()[x] for x in range(model.columnCount())])
         
 
 
