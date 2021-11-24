@@ -8,6 +8,7 @@ from PyQt5.QtWidgets import (QAction, QApplication, QFileDialog, QMainWindow,
                              QTableView, QTableWidget, QTextEdit)
 
 from main import logAnalysis
+from numpyArrayModel import NumpyArrayModel
 from PandasModel import pandasModel
 
 
@@ -51,11 +52,12 @@ class MainWindow(QMainWindow):
 
         # Create a specific model for the table (MVC)
         model = pandasModel(df)
+        # model = NumpyArrayModel(df,logAnalysis(fname[0]).getHeader())
         
         # Apply the model to the QTableView        
         self.table.setModel(model)
         
-        # self.table.setSortingEnabled(True)
+        self.table.setSortingEnabled(True)
         self.table.show()
 
 

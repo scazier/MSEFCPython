@@ -2,6 +2,7 @@ import sys
 from operator import attrgetter
 
 import pandas as pd
+from PyQt5 import QtCore
 from PyQt5.QtCore import QAbstractTableModel, Qt
 from PyQt5.QtWidgets import QApplication, QTableView
 
@@ -30,9 +31,11 @@ class pandasModel(QAbstractTableModel):
         return None
 
     def sort(self, col, order):
+        colname = self._data.columns.tolist()[col]
         self.layoutAboutToBeChanged.emit()
-        # self.data.sort_values()
-        self._data.sort_values(by= attrgetter(str(col)))
+        # self._data.sort_values(colname, ascending=QtCore.Qt.AscendingOrder, inplace=True)
+        self._data.sort_values(colname, ascending=QtCore.Qt.AscendingOrder, inplace=True)
+        self._data.reset_index(inplace=True, drop=True)
         self.layoutChanged.emit()
     
     def setHorizontalHeaderLabels():
