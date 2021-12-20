@@ -16,7 +16,7 @@ class Log:
     """
     def testLog(self):
         found = 0
-        with open('AutoLog/struct.conf','r') as struct:
+        with open('struct.conf','r') as struct:
             for conf in struct:
                 conf = conf.split(';')
                 with open(self.filename,'r') as log:
