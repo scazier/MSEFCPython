@@ -1,4 +1,7 @@
+# -*- coding: utf-8 -*-
+import os
 import sys
+import exiftool
 from datetime import time
 from pathlib import Path
 
@@ -6,12 +9,13 @@ import pandas as pd
 from PyQt5 import QtCore, QtWidgets
 from PyQt5.QtCore import (QPoint, QRegExp, QSignalMapper,
                           QSortFilterProxyModel, Qt)
-from PyQt5.QtGui import QIcon
+from PyQt5.QtGui import QIcon, QPixmap
 from PyQt5.QtWidgets import (QAction, QApplication, QComboBox, QFileDialog,
                              QGridLayout, QLabel, QLineEdit, QMainWindow,
                              QMenu, QTableView, QTableWidget, QTextEdit,
                              QWidget, QTabWidget, QVBoxLayout, QHBoxLayout,
-                             QListWidget, QListWidgetItem)
+                             QListWidget, QListWidgetItem, QPushButton,
+                             QHeaderView)
 
 from main import logAnalysis
 # from numpyArrayModel import NumpyArrayModel
@@ -50,7 +54,7 @@ class TableWidget(QWidget):
         self.tabs.resize(400,300)
 
         self.tabs.addTab(self.tab1,"Analog")
-        self.tabs.addTab(self.tab2,"Crawler")
+        self.tabs.addTab(self.tab2,"Metadata")
         self.tabs.addTab(self.tab3,"Stat")
 
         self.analogUI()
@@ -98,18 +102,67 @@ class TableWidget(QWidget):
         self.tab1.setLayout(self.tab1.layout)
 
     def metadataUI(self):
-        self.tab2.layout = QHBoxLayout(
+        self.tab2.layout = QVBoxLayout()
+        self.tab2.HUpLayout = QHBoxLayout()
+        self.tab2.HBottomLayout = QHBoxLayout()
         self.metaTable = QTableView()
-        )
 
+        self.linePath = QLineEdit()
+        self.linePath.isReadOnly()
+        self.linePath.dragEnabled()
+        self.linePath.textChanged.connect(self.listFiles)
+        self.labelPath = QLabel("Path:")
+        self.openButton = QPushButton("", self)
+        self.openButton.setIcon(QIcon("../imgs/folder.png"))
+        self.openButton.clicked.connect(self.setMetadataPath)
         self.listWidget = QListWidget()
-        QListWidgetItem("Geeks", self.listWidget)
-        QListWidgetItem("For", self.listWidget)
-        QListWidgetItem("Geeks", self.listWidget)
+        self.listWidget.itemClicked.connect(self.displayMetadata)
 
-        self.tab2.layout.addWidget(self.listWidget)
+        self.tab2.HUpLayout.addWidget(self.labelPath)
+        self.tab2.HUpLayout.addWidget(self.linePath)
+        self.tab2.HUpLayout.addWidget(self.openButton)
+        self.tab2.HBottomLayout.addWidget(self.listWidget)
+        self.tab2.HBottomLayout.addWidget(self.metaTable)
+
+        self.tab2.layout.addLayout(self.tab2.HUpLayout)
+        self.tab2.layout.addLayout(self.tab2.HBottomLayout)
         self.tab2.setLayout(self.tab2.layout)
 
+    def setMetadataPath(self):
+        path = QFileDialog.getExistingDirectory(self, 'Open file','/home/')
+        if path != "":
+            self.linePath.setText(path)
+
+    def listFiles(self):
+        if "file://" in self.linePath.text():
+            tmpPath = self.linePath.text()[self.linePath.text().find("file://")+7:]
+            self.linePath.clear()
+            self.linePath.setText(tmpPath.strip())
+
+        self.listWidget.clear()
+        for root,directory,files in os.walk(self.linePath.text()):
+            for i in files:
+                QListWidgetItem(os.path.join(root,i), self.listWidget)
+
+    def displayMetadata(self):
+        #path = "/home/m0xy/Images/binary.png"
+        path = self.listWidget.currentItem().text()
+        if path[0] != "" and path[0] is not None:
+            self.fileMetadata = {}
+            with exiftool.ExifTool() as et:
+                self.fileMetadata = dict(et.get_metadata(path))
+            df = pd.DataFrame(self.fileMetadata.items())
+            df.set_axis(["Property","Value"], axis=1, inplace=True)
+
+            model = pandasModel(df)
+            self.metaTable.setModel(model)
+            self.metaTable.setAlternatingRowColors(True)
+            self.metaTable.setSizeAdjustPolicy(
+                QtWidgets.QAbstractScrollArea.AdjustToContents)
+            self.metaTable.setSizeAdjustPolicy(
+                QtWidgets.QAbstractScrollArea.AdjustToContentsOnFirstShow)
+            #self.metaTable.horizontalHeader().setStretchLastSection(True)
+            self.metaTable.horizontalHeader().setSectionResizeMode(1, QHeaderView.Stretch)
 
     def showDialog(self):
 
