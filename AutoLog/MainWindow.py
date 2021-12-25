@@ -115,8 +115,8 @@ class TableWidget(QWidget):
         self.tab2.layout = QVBoxLayout()
         self.tab2.HUpLayout = QHBoxLayout()
         self.tab2.HBottomLayout = QHBoxLayout()
-        self.metaTable = QTableView()
 
+        self.metaTable = QTableView()
         self.linePath = QLineEdit()
         self.linePath.isReadOnly()
         self.linePath.dragEnabled()
@@ -156,6 +156,7 @@ class TableWidget(QWidget):
         self.resultRegex = QListWidget()
         self.browseRegex = QPushButton("",self)
         self.browseRegex.setIcon(QIcon("../imgs/browsing.png"))
+        self.browseRegex.setSizePolicy(QSizePolicy.Preferred,QSizePolicy.Preferred)
         self.browseRegex.clicked.connect(self.browseURL)
         self.exportRegex = QPushButton("Export")
         self.exportRegex.clicked.connect(self.exportMatchedRegex)
@@ -282,7 +283,7 @@ class TableWidget(QWidget):
                 QtWidgets.QAbstractScrollArea.AdjustToContents)
             self.metaTable.setSizeAdjustPolicy(
                 QtWidgets.QAbstractScrollArea.AdjustToContentsOnFirstShow)
-            #self.metaTable.horizontalHeader().setStretchLastSection(True)
+            self.metaTable.horizontalHeader().setStretchLastSection(True)
             self.metaTable.horizontalHeader().setSectionResizeMode(1, QHeaderView.Stretch)
 
     def showDialog(self):
