@@ -202,7 +202,7 @@ class TableWidget(QWidget):
                     regex = line[1]
 
         if regex == "":
-            regex = self.lineRegex.edit.text()#46.175.70.69
+            regex = self.lineRegex.edit.text()
 
         self.resultRegex.clear()
         response = requests.get(self.lineURL.text())
@@ -217,6 +217,10 @@ class TableWidget(QWidget):
             return
 
         result = soup.find_all(text=re.compile(regex.strip()))
+
+        if len(result) == 0:
+            self.regexMatches.setText("0 match")
+
         for res in result:
             if re.fullmatch(re.compile(regex.strip()),res) is not None:
                 QListWidgetItem(res,self.resultRegex)
