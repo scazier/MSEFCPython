@@ -302,17 +302,17 @@ class TableWidget(QWidget):
             self.metaTable.horizontalHeader().setSectionResizeMode(1, QHeaderView.Stretch)
 
     def visualizeGPSMetadata(self):
-        listLength = self.listWidget.count()-1
+        listLength = self.listWidget.count()
 
         if listLength < 1:
             msg = QMessageBox()
             msg.setWindowTitle("Error")
-            msg.setInformativeText("You must list files first")
+            msg.setInformativeText("No files to parse")
             msg.setIcon(QMessageBox.Warning)
             msg.exec_()
             return
 
-        self.map = folium.Map(tiles="OpenStreetMap", zoom_start=10)
+        map = folium.Map(location=[20,0], tiles="OpenStreetMap", zoom_start=2)
 
         self.pbar = QProgressBar()
         self.pbar.setMinimum(0)
@@ -321,6 +321,7 @@ class TableWidget(QWidget):
         self.tab2.HSecondBottomLayout.addWidget(self.pbar, 0, 1)
         self.pbar.show()
 
+        marker_counter = 0
         for index in range(listLength):
             metadata = {}
             with exiftool.ExifTool() as et:
@@ -352,13 +353,22 @@ class TableWidget(QWidget):
                     location=[metadata["EXIF:GPSLatitude"], metadata["EXIF:GPSLongitude"]],
                     popup=folium.Popup(iframe, parse_html=True, max_width=1000),
                     icon=icon
-                ).add_to(self.map)
+                ).add_to(map)
+                marker_counter += 1
 
             self.pbar.setValue(index+1)
             percentage = round((float(index+1)/(listLength)) * 100, 1)
             self.pbar.setFormat("Parsing GPS metadata... ({} %)".format(percentage))
 
-        self.map.save(os.path.split(os.path.abspath(__file__))[0]+r"/.tmp.html")
+        if marker_counter == 0:
+            msg = QMessageBox()
+            msg.setWindowTitle("Error")
+            msg.setInformativeText("No GPS metadata found")
+            msg.setIcon(QMessageBox.Warning)
+            msg.exec_()
+            return
+
+        map.save(os.path.split(os.path.abspath(__file__))[0]+r"/.tmp.html")
         # self.dataMap = io.BytesIO()
         # self.map.save(self.dataMap, close_file=False)
         webView = QWebEngineView()
