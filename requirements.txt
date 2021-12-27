@@ -1,4 +1,5 @@
 PyQt5==5.15.6
+PyQtWebEngine
 beautifulsoup4
 requests
 PyExifTool
