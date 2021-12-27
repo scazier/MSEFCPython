@@ -1,7 +1,10 @@
 # -*- coding: utf-8 -*-
 import os
 import re
+import io
 import sys
+import base64
+import folium
 import requests
 import exiftool
 from datetime import time
@@ -9,7 +12,7 @@ from pathlib import Path
 from bs4 import BeautifulSoup
 
 import pandas as pd
-from PyQt5 import QtCore, QtWidgets
+from PyQt5 import QtCore, QtWidgets, QtWebEngineWidgets, QtGui
 from PyQt5.QtCore import (QPoint, QRegExp, QSignalMapper,
                           QSortFilterProxyModel, Qt)
 from PyQt5.QtGui import QIcon, QPixmap
@@ -18,7 +21,8 @@ from PyQt5.QtWidgets import (QAction, QApplication, QComboBox, QFileDialog,
                              QMenu, QTableView, QTableWidget, QTextEdit,
                              QWidget, QTabWidget, QVBoxLayout, QHBoxLayout,
                              QListWidget, QListWidgetItem, QPushButton,
-                             QHeaderView, QSizePolicy, QMessageBox)
+                             QHeaderView, QSizePolicy, QMessageBox, QProgressBar)
+from PyQt5.QtWebEngineWidgets import QWebEngineView
 
 from main import logAnalysis
 # from numpyArrayModel import NumpyArrayModel
@@ -115,6 +119,7 @@ class TableWidget(QWidget):
         self.tab2.layout = QVBoxLayout()
         self.tab2.HUpLayout = QHBoxLayout()
         self.tab2.HBottomLayout = QHBoxLayout()
+        self.tab2.HSecondBottomLayout = QGridLayout()
 
         self.metaTable = QTableView()
         self.linePath = QLineEdit()
@@ -127,15 +132,24 @@ class TableWidget(QWidget):
         self.openButton.clicked.connect(self.setMetadataPath)
         self.listWidget = QListWidget()
         self.listWidget.itemClicked.connect(self.displayMetadata)
+        self.labelNumFiles = QLabel()
+        self.visualizeButton = QPushButton("Visualize")
+        self.visualizeButton.clicked.connect(self.visualizeGPSMetadata)
 
         self.tab2.HUpLayout.addWidget(self.labelPath)
         self.tab2.HUpLayout.addWidget(self.linePath)
         self.tab2.HUpLayout.addWidget(self.openButton)
         self.tab2.HBottomLayout.addWidget(self.listWidget)
         self.tab2.HBottomLayout.addWidget(self.metaTable)
+        self.tab2.HSecondBottomLayout.addWidget(self.labelNumFiles, 0, 0)
+        self.tab2.HSecondBottomLayout.addWidget(self.visualizeButton, 0, 3, alignment=QtCore.Qt.AlignRight)
+        self.tab2.HSecondBottomLayout.setColumnStretch(0, 1)
+        self.tab2.HSecondBottomLayout.setColumnStretch(1, 3)
+        self.tab2.HSecondBottomLayout.setColumnStretch(2, 1)
 
         self.tab2.layout.addLayout(self.tab2.HUpLayout)
         self.tab2.layout.addLayout(self.tab2.HBottomLayout)
+        self.tab2.layout.addLayout(self.tab2.HSecondBottomLayout)
         self.tab2.setLayout(self.tab2.layout)
 
     def websiteUI(self):
@@ -265,9 +279,10 @@ class TableWidget(QWidget):
         for root,directory,files in os.walk(self.linePath.text()):
             for i in files:
                 QListWidgetItem(os.path.join(root,i), self.listWidget)
+                self.labelNumFiles.setText("%s files" % self.listWidget.count())
+                self.labelNumFiles.show()
 
     def displayMetadata(self):
-        #path = "/home/m0xy/Images/binary.png"
         path = self.listWidget.currentItem().text()
         if path[0] != "" and path[0] is not None:
             self.fileMetadata = {}
@@ -286,6 +301,72 @@ class TableWidget(QWidget):
             self.metaTable.horizontalHeader().setStretchLastSection(True)
             self.metaTable.horizontalHeader().setSectionResizeMode(1, QHeaderView.Stretch)
 
+    def visualizeGPSMetadata(self):
+        listLength = self.listWidget.count()-1
+
+        if listLength < 1:
+            msg = QMessageBox()
+            msg.setWindowTitle("Error")
+            msg.setInformativeText("You must list files first")
+            msg.setIcon(QMessageBox.Warning)
+            msg.exec_()
+            return
+
+        self.map = folium.Map(tiles="OpenStreetMap", zoom_start=10)
+
+        self.pbar = QProgressBar()
+        self.pbar.setMinimum(0)
+        self.pbar.setMaximum(listLength)
+        self.pbar.setFormat("Parsing GPS metadata... (0 %)")
+        self.tab2.HSecondBottomLayout.addWidget(self.pbar, 0, 1)
+        self.pbar.show()
+
+        for index in range(listLength):
+            metadata = {}
+            with exiftool.ExifTool() as et:
+                metadata = et.get_metadata(self.listWidget.item(index).text())
+            if "EXIF:GPSLatitude" in metadata.keys():
+
+                # try:
+                #     encoded = base64.b64encode(open(metadata["SourceFile"],'rb').read()).decode()
+                #     svg = '<img src="data:{};base64,{}" width="200" height="100">'.format(metadta["File:MIMEType"],encoded)
+                # except:
+                #     encoded = "No preview"
+
+                htmlPopup = """
+                    <div>
+                        <p>Filename: {}</p>
+                        <p>Creation date: {}<p>
+                    </div>""".format(metadata["SourceFile"],metadata["EXIF:CreateDate"])
+                iframe = folium.IFrame(
+                            html=htmlPopup,
+                            width=600,
+                            height=100
+                )
+
+                iconFactor = 0.02
+                iconSize = (int(iconFactor*metadata["File:ImageWidth"]), int(iconFactor*metadata["File:ImageHeight"]))
+                icon = folium.features.CustomIcon(metadata["SourceFile"], icon_size=iconSize)
+
+                folium.Marker(
+                    location=[metadata["EXIF:GPSLatitude"], metadata["EXIF:GPSLongitude"]],
+                    popup=folium.Popup(iframe, parse_html=True, max_width=1000),
+                    icon=icon
+                ).add_to(self.map)
+
+            self.pbar.setValue(index+1)
+            percentage = round((float(index+1)/(listLength)) * 100, 1)
+            self.pbar.setFormat("Parsing GPS metadata... ({} %)".format(percentage))
+
+        self.map.save(os.path.split(os.path.abspath(__file__))[0]+r"/.tmp.html")
+        # self.dataMap = io.BytesIO()
+        # self.map.save(self.dataMap, close_file=False)
+        webView = QWebEngineView()
+        # webView.setHtml(self.dataMap.getvalue().decode())
+        webView.load(QtCore.QUrl().fromLocalFile(os.path.split(os.path.abspath(__file__))[0]+r"/.tmp.html"))
+        self.webMap = metadataMap(webView)
+        self.webMap.show()
+
     def showDialog(self):
 
         home_dir = str(Path.home())
@@ -296,7 +377,7 @@ class TableWidget(QWidget):
         df = pd.DataFrame(mylog.parseLog())
 
         # Set the columns Names
-        df.set_axis(mylog.getHeader(),  axis=1, inplace=True)
+        df.set_axis(mylog.getHeader(), axis=1, inplace=True)
 
         # Create a specific model for the table (MVC)
         model = pandasModel(df)
@@ -351,6 +432,16 @@ class TableWidget(QWidget):
                 for column in range(model.columnCount()):
                     line.append(model.data(model.index(row,column)))
                 file.write(";".join(line)+'\n')
+
+class metadataMap(QWidget):
+    def __init__(self, widget):
+        super().__init__()
+        self.resize(1000,600)
+        self.setWindowTitle("Metadata map")
+        layout = QVBoxLayout()
+        layout.addWidget(widget)
+        self.setLayout(layout)
+
 
 def main():
     app = QApplication(sys.argv)
