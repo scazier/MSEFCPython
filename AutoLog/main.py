@@ -25,7 +25,7 @@ class logAnalysis:
 
     def parseLog(self):
         return self.file.parseLog()
-    
+
     def getHeader(self):
         return self.file.getHeader()
 

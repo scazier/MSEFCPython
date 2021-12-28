@@ -28,6 +28,7 @@ from main import logAnalysis
 # from numpyArrayModel import NumpyArrayModel
 from PandasModel import pandasModel
 
+ROOT_PATH = "/".join(os.path.abspath(__file__).split('/')[:-2])
 
 class MainWindow(QMainWindow):
 
@@ -195,7 +196,7 @@ class TableWidget(QWidget):
         self.tab3.setLayout(self.tab3.layout)
 
     def loadRegex(self):
-        with open("URLRegex.conf") as regexConf:
+        with open(ROOT_PATH+"/AutoLog/URLRegex.conf") as regexConf:
             for line in regexConf:
                 self.lineRegex.addItem(line.split(';')[0])
 
@@ -210,7 +211,7 @@ class TableWidget(QWidget):
 
         # Load basic regex (IP,emails,phone, ...)
         regex = ""
-        with open("URLRegex.conf") as regexConf:
+        with open(ROOT_PATH+"/AutoLog/URLRegex.conf") as regexConf:
             for line in regexConf:
                 line = line.split(';')
                 if self.lineRegex.edit.text().lower() == line[0].lower():
@@ -423,8 +424,8 @@ class TableWidget(QWidget):
 
     def exportLogs(self):
         model = self.table.model()
-
-        if model.rowCount() == 0:
+        print(model)
+        if model == None or model.rowCount() == 0:
             msg = QMessageBox()
             msg.setWindowTitle("Error")
             msg.setInformativeText("You cannot export an empty list")
@@ -450,7 +451,24 @@ class metadataMap(QWidget):
         self.setWindowTitle("Metadata map")
         layout = QVBoxLayout()
         layout.addWidget(widget)
+        self.saveMapButton = QPushButton("Save")
+        self.saveMapButton.clicked.connect(self.saveMap)
+        layout.addWidget(self.saveMapButton, alignment=Qt.AlignLeft)
         self.setLayout(layout)
+
+    def saveMap(self):
+        filepath, _ = QFileDialog.getSaveFileName(self, "Save map", "", "html")
+        if filepath == "":
+            return
+
+        with open(filepath+".html",'wb') as outputFile:
+            outputFile.write(open(os.path.split(os.path.abspath(__file__))[0]+r"/.tmp.html",'rb').read())
+
+        msg = QMessageBox()
+        msg.setWindowTitle("Information")
+        msg.setInformativeText("Map saved successfully")
+        msg.setIcon(QMessageBox.Success)
+        msg.exec_()
 
 
 def main():

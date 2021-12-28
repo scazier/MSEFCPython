@@ -1,5 +1,7 @@
+import os
 import re
 
+ROOT_PATH = "/".join(os.path.abspath(__file__).split('/')[:-2])
 
 class Log:
     def __init__(self, filename):
@@ -16,7 +18,7 @@ class Log:
     """
     def testLog(self):
         found = 0
-        with open('struct.conf','r') as struct:
+        with open(ROOT_PATH+"/AutoLog/struct.conf",'r') as struct:
             for conf in struct:
                 conf = conf.split(';')
                 with open(self.filename,'r') as log:
@@ -25,6 +27,7 @@ class Log:
                         self.type   = conf[0]
                         self.header = conf[1].split(',')
                         self.regex  = conf[2]
+                        print(self.type,self.header,self.regex)
                         found = 1
         return found
 
