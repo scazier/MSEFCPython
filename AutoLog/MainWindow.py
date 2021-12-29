@@ -138,6 +138,7 @@ class TableWidget(QWidget):
         self.labelNumFiles = QLabel()
         self.visualizeButton = QPushButton("Visualize")
         self.visualizeButton.clicked.connect(self.visualizeGPSMetadata)
+        self.visualizeButton.setDisabled(True)
 
         self.tab2.HUpLayout.addWidget(self.labelPath)
         self.tab2.HUpLayout.addWidget(self.linePath)
@@ -313,6 +314,8 @@ class TableWidget(QWidget):
                 QtWidgets.QAbstractScrollArea.AdjustToContentsOnFirstShow)
             self.metaTable.horizontalHeader().setStretchLastSection(True)
             self.metaTable.horizontalHeader().setSectionResizeMode(1, QHeaderView.Stretch)
+            if 'EXIF:GPSLatitude' and 'EXIF:GPSLongitude' in self.fileMetadata : self.visualizeButton.setDisabled(False)
+            else: self.visualizeButton.setDisabled(True)
 
     def visualizeGPSMetadata(self):
         listLength = self.listWidget.count()
