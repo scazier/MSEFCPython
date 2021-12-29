@@ -291,7 +291,7 @@ class TableWidget(QWidget):
     def hasGpsMetadata(self, path):
         self.fileMetadata = {}
         with exiftool.ExifTool() as et:
-            return 'EXIF:GPSLatitude' in dict(et.get_metadata(path)) and 'EXIF:GPSLongitude' in dict(et.get_metadata(path))
+            return 'EXIF:GPSLatitude' and 'EXIF:GPSLongitude' in dict(et.get_metadata(path))
         
 
 
