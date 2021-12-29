@@ -1,28 +1,29 @@
 # -*- coding: utf-8 -*-
+import base64
+import io
 import os
 import re
-import io
 import sys
-import base64
-import folium
-import requests
-import exiftool
 from datetime import time
 from pathlib import Path
-from bs4 import BeautifulSoup
 
+import exiftool
+import folium
 import pandas as pd
-from PyQt5 import QtCore, QtWidgets, QtWebEngineWidgets, QtGui
+import requests
+from bs4 import BeautifulSoup
+from PyQt5 import QtCore, QtGui, QtWebEngineWidgets, QtWidgets
 from PyQt5.QtCore import (QPoint, QRegExp, QSignalMapper,
                           QSortFilterProxyModel, Qt)
 from PyQt5.QtGui import QIcon, QPixmap
-from PyQt5.QtWidgets import (QAction, QApplication, QComboBox, QFileDialog,
-                             QGridLayout, QLabel, QLineEdit, QMainWindow,
-                             QMenu, QTableView, QTableWidget, QTextEdit,
-                             QWidget, QTabWidget, QVBoxLayout, QHBoxLayout,
-                             QListWidget, QListWidgetItem, QPushButton,
-                             QHeaderView, QSizePolicy, QMessageBox, QProgressBar)
 from PyQt5.QtWebEngineWidgets import QWebEngineView
+from PyQt5.QtWidgets import (QAction, QApplication, QComboBox, QFileDialog,
+                             QGridLayout, QHBoxLayout, QHeaderView, QLabel,
+                             QLineEdit, QListWidget, QListWidgetItem,
+                             QMainWindow, QMenu, QMessageBox, QProgressBar,
+                             QPushButton, QSizePolicy, QTableView,
+                             QTableWidget, QTabWidget, QTextEdit, QVBoxLayout,
+                             QWidget)
 
 from main import logAnalysis
 # from numpyArrayModel import NumpyArrayModel
@@ -129,6 +130,7 @@ class TableWidget(QWidget):
         self.linePath.textChanged.connect(self.listFiles)
         self.labelPath = QLabel("Path:")
         self.openButton = QPushButton("", self)
+        self.openButton.setText("...")
         self.openButton.setIcon(QIcon("../imgs/folder.png"))
         self.openButton.clicked.connect(self.setMetadataPath)
         self.listWidget = QListWidget()
@@ -279,9 +281,19 @@ class TableWidget(QWidget):
         self.listWidget.clear()
         for root,directory,files in os.walk(self.linePath.text()):
             for i in files:
-                QListWidgetItem(os.path.join(root,i), self.listWidget)
+                item = QListWidgetItem(os.path.join(root,i), self.listWidget)
+                if self.hasGpsMetadata(os.path.join(root,i)):
+                    item.setForeground(Qt.green)
                 self.labelNumFiles.setText("%s files" % self.listWidget.count())
-                self.labelNumFiles.show()
+                self.labelNumFiles.show() 
+
+    def hasGpsMetadata(self, path):
+        self.fileMetadata = {}
+        with exiftool.ExifTool() as et:
+            return 'EXIF:GPSLatitude' in dict(et.get_metadata(path)) and 'EXIF:GPSLongitude' in dict(et.get_metadata(path))
+        
+
+
 
     def displayMetadata(self):
         path = self.listWidget.currentItem().text()
